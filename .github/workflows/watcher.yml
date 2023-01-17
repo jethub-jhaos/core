@@ -1,0 +1,37 @@
+name: Watcher
+
+on:
+  push:
+    branches:
+      - dev
+      - jethub
+
+jobs:
+  watcher:
+    name: File watcher
+    runs-on: [ self-hosted ]
+    if: ${{ github.repository_owner == 'jethub-jhaos' }}
+    steps:
+      - name: Get changed files in the .github folder
+        id: changedfiles
+        uses: tj-actions/changed-files@v35
+        with:
+          files: .github/**
+
+      - name: Run step if any file(s) in the docs folder change
+        if: steps.changedfiles.outputs.any_changed == 'true'
+        run: |
+          echo "List all the files that have changed: ${{ steps.changedfiles.outputs.all_changed_files }}"
+          echo "LISTFILES<<EOF" >>$GITHUB_ENV
+          echo "${{ steps.changedfiles.outputs.all_changed_files }}" >>$GITHUB_ENV
+          echo "EOF" >>$GITHUB_ENV
+
+      - name: create issue
+        if: steps.changedfiles.outputs.any_changed == 'true'
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          filename: .github/checkactions.md
+          update_existing: true
+          search_existing: all
