@@ -72,14 +72,9 @@ def generate_upload_data():
 
 def run():
     """Run the script."""
-    if (
-        get_current_branch() != "dev-jethub"
-        and os.environ.get("AZURE_BRANCH") != "dev-jethub"
-    ):
+    if get_current_branch() != "dev" and os.environ.get("AZURE_BRANCH") != "dev":
         raise ExitApp(
-            "Please only run the translations upload script from a clean checkout of dev. cb:%s ab:%s"(
-                get_current_branch(), os.environ.get("AZURE_BRANCH")
-            )
+            "Please only run the translations upload script from a clean checkout of dev."
         )
 
     translations = generate_upload_data()
