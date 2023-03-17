@@ -6,64 +6,11 @@ import json
 import os
 import pathlib
 import re
-import subprocess
 
-from .const import CLI_2_DOCKER_IMAGE, CORE_PROJECT_ID, INTEGRATIONS_DIR
-from .error import ExitApp
-from .util import get_lokalise_token
+from .const import INTEGRATIONS_DIR
 
 FILENAME_FORMAT = re.compile(r"strings\.(?P<suffix>\w+)\.json")
 DOWNLOAD_DIR = pathlib.Path("build/translations-download").absolute()
-
-
-def run_download_tx():
-    """Run the tx cli to download the translations."""
-    print("Running tx to upload latest translations.")
-    subprocess.run(
-        [
-            "tx",
-            "pull",
-            "-s",
-            "-t",
-            "-a",
-        ],
-    )
-
-
-def run_download_docker():
-    """Run the Docker image to download the translations."""
-    print("Running Docker to download latest translations.")
-    run = subprocess.run(
-        [
-            "docker",
-            "run",
-            "-v",
-            f"{DOWNLOAD_DIR}:/opt/dest/locale",
-            "--rm",
-            f"lokalise/lokalise-cli-2:{CLI_2_DOCKER_IMAGE}",
-            # Lokalise command
-            "lokalise2",
-            "--token",
-            get_lokalise_token(),
-            "--project-id",
-            CORE_PROJECT_ID,
-            "file",
-            "download",
-            CORE_PROJECT_ID,
-            "--original-filenames=false",
-            "--replace-breaks=false",
-            "--export-empty-as",
-            "skip",
-            "--format",
-            "json",
-            "--unzip-to",
-            "/opt/dest",
-        ]
-    )
-    print()
-
-    if run.returncode != 0:
-        raise ExitApp("Failed to download translations")
 
 
 def save_json(filename: str, data: list | dict):
@@ -148,9 +95,6 @@ def delete_old_translations():
 def run():
     """Run the script."""
     DOWNLOAD_DIR.mkdir(parents=True, exist_ok=True)
-
-    # run_download_docker()
-    run_download_tx()
 
     delete_old_translations()
 

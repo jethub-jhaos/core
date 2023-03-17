@@ -4,68 +4,13 @@ import json
 import os
 import pathlib
 import re
-import subprocess
 
-from .const import (
-    CLI_2_DOCKER_IMAGE,
-    CORE_PROJECT_ID,
-    INTEGRATIONS_DIR,
-    TRANSLATIONS_DIR,
-)
-from .error import ExitApp
-from .util import get_current_branch, get_lokalise_token
+from .const import INTEGRATIONS_DIR, TRANSLATIONS_DIR
 
 FILENAME_FORMAT = re.compile(r"strings\.(?P<suffix>\w+)\.json")
 LOCAL_FILE = pathlib.Path("build/translations-upload.json").absolute()
 CONTAINER_FILE = "/opt/src/build/translations-upload.json"
 LANG_ISO = "en"
-
-
-def run_upload_tx():
-    """Run the tx cli to upload the translations."""
-    print("Running tx to upload latest translations.")
-    subprocess.run(
-        [
-            "tx",
-            "push",
-            "-s",
-            "-t",
-            "-a",
-        ],
-    )
-
-
-def run_upload_docker():
-    """Run the Docker image to upload the translations."""
-    print("Running Docker to upload latest translations.")
-    run = subprocess.run(
-        [
-            "docker",
-            "run",
-            "-v",
-            f"{LOCAL_FILE}:{CONTAINER_FILE}",
-            "--rm",
-            f"lokalise/lokalise-cli-2:{CLI_2_DOCKER_IMAGE}",
-            # Lokalise command
-            "lokalise2",
-            "--token",
-            get_lokalise_token(),
-            "--project-id",
-            CORE_PROJECT_ID,
-            "file",
-            "upload",
-            "--file",
-            CONTAINER_FILE,
-            "--lang-iso",
-            LANG_ISO,
-            "--convert-placeholders=false",
-            "--replace-modified",
-        ],
-    )
-    print()
-
-    if run.returncode != 0:
-        raise ExitApp("Failed to download translations")
 
 
 def generate_upload_data():
@@ -91,23 +36,11 @@ def generate_upload_data():
 
 def run():
     """Run the script."""
-    if (
-        get_current_branch() != "dev-jethub"
-        and os.environ.get("AZURE_BRANCH") != "dev-jethub"
-    ):
-        raise ExitApp(
-            "Please only run the translations upload script from a clean checkout of dev."
-        )
-
     translations = generate_upload_data()
 
-    LOCAL_FILE.parent.mkdir(parents=True, exist_ok=True)
-    LOCAL_FILE.write_text(json.dumps(translations, indent=4, sort_keys=True))
     TRANSLATIONS_DIR.mkdir(parents=True, exist_ok=True)
     TRANSLATIONS_DIR.joinpath("en.json").write_text(
         json.dumps(translations, indent=4, sort_keys=True)
     )
-
-    run_upload_tx()
 
     return 0
