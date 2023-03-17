@@ -6,6 +6,9 @@ on:
   push:
     branches:
       - dev
+      - dev-jethub
+      - master
+      - master-jethub
     paths:
       - "**strings.json"
 
@@ -26,7 +29,21 @@ jobs:
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
 
-      - name: Upload Translations
+      - name: Prepare Translations
         run: |
-          export LOKALISE_TOKEN="${{ secrets.LOKALISE_TOKEN }}"
-          python3 -m script.translations upload
+          python3 -m script.jhtranslations upload_prepare
+
+      - name: Get translated resources from current HA core dev
+        run: |
+          VERSION=$(curl -s https://version.home-assistant.io/dev.json | jq -r '.homeassistant."qemuarm-64"')
+          docker create --name temp-core ghcr.io/home-assistant/aarch64-homeassistant:$VERSION
+          for lang in af bn cs de es fa fy he hu is ka lt nb no pt sk sr te uk zh-Hans ar bs cy el eo et fi gl hi hy it ko lv nl pl ro sl sv th ur zh-Hant bg ca da en-GB es-419 eu fr gsw hr id ja lb ml nn pt-BR ru sr-Latn ta tr vi; do
+            docker cp temp-core:"/usr/src/homeassistant/build/translations-download/$lang.json" build/translations-download/
+          done
+          docker rm temp-core
+
+      - name: Upload Translations
+        uses: transifex/cli-action@v2
+        with:
+          token: ${{ secrets.TX_TOKEN }}
+          args: push -s -t -a
