@@ -188,9 +188,13 @@ jobs:
           fi
 
       - name: Download Translations
-        run: python3 -m script.translations download
-        env:
-          LOKALISE_TOKEN: ${{ secrets.LOKALISE_TOKEN }}
+        uses: transifex/cli-action@v2
+        with:
+          token: ${{ secrets.TX_TOKEN }}
+          args: pull -s -t -a
+
+      - name: Write Translations
+        run: python3 -m script.jhtranslations download
 
       - name: Write meta info file
         shell: bash
