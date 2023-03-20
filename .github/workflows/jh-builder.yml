@@ -214,16 +214,9 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build base image
-        uses: jethubjhaos/builder@2023.03.0-jethub
-        with:
-          args: |
-            $BUILD_ARGS \
-            --${{ matrix.arch }} \
-            --target /data \
-            --generic ${{ needs.init.outputs.version }}
-        env:
-          CAS_API_KEY: ${{ secrets.CAS_TOKEN }}
+      - name: Control Build base image
+        run: |
+          echo $BUILD_ARGS --${{ matrix.arch }} --target /data --generic ${{ needs.init.outputs.version }}
 
       - name: Archive translations
         shell: bash
