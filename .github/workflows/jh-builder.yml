@@ -247,6 +247,10 @@ jobs:
           - generic-x86-64
           - intel-nuc
           - khadas-vim3
+          - jethub-h1
+          - jethub-h2
+          - jethub-d1
+          - jethub-d1p
           - odroid-c2
           - odroid-c4
           - odroid-n2
