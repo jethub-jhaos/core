@@ -22,7 +22,7 @@ jobs:
       architectures: ${{ steps.info.outputs.architectures }}
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.4.0
+        uses: actions/checkout@v3.5.0
 
       - name: Get information
         id: info
@@ -82,7 +82,7 @@ jobs:
         arch: ${{ fromJson(needs.init.outputs.architectures) }}
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.4.0
+        uses: actions/checkout@v3.5.0
 
       - name: Download env_file
         uses: actions/download-artifact@v3
@@ -108,10 +108,11 @@ jobs:
           requirements-diff: "requirements_diff.txt"
           requirements: "requirements.txt"
 
-  integrations:
-    name: Build musllinux wheels with musllinux_1_2 / cp310 at ${{ matrix.arch }} for integrations
+  preintegrations:
     if: github.repository_owner == 'jethubjhaos'
     needs: init
+    outputs:
+      matrix: ${{ steps.split.outputs.requirements }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -119,7 +120,7 @@ jobs:
         arch: ${{ fromJson(needs.init.outputs.architectures) }}
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.4.0
+        uses: actions/checkout@v3.5.0
 
       - name: Download env_file
         uses: actions/download-artifact@v3
@@ -146,14 +147,56 @@ jobs:
             sed -i "s|# python-gammu|python-gammu|g" ${requirement_file}
             sed -i "s|# opencv-python-headless|opencv-python-headless|g" ${requirement_file}
           done
-
       - name: Split requirements all
         run: |
           # We split requirements all into two different files.
           # This is to prevent the build from running out of memory when
           # resolving packages on 32-bits systems (like armhf, armv7).
+          # fix: into 3+ different files. fixes out of memory
 
-          split -l $(expr $(expr $(cat requirements_all.txt | wc -l) + 1) / 2) requirements_all.txt requirements_all.txt
+          split -l $(expr $(expr $(cat requirements_all.txt | wc -l) + 1) / 5) requirements_all.txt requirements_all_split.txt
+          echo 'requirements<<EOF' >> $GITHUB_OUTPUT
+          ls requirements_all_split.txt* | awk '{print  "{\"file\": \""$1"\",\"arch\":\""${{ matrix.arch }}"\" }"}' | jq | jq -s >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+
+  integrations:
+    name: Build musllinux wheels with musllinux_1_2 / cp310 at ${{ matrix.arch }} for integrations
+    if: github.repository_owner == 'jethubjhaos'
+    needs: preintegrations
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: ${{ fromJson(needs.preintegrations.outputs.matrix) }}
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3.5.0
+
+      - name: Download env_file
+        uses: actions/download-artifact@v3
+        with:
+          name: env_file
+
+      - name: Download requirements_diff
+        uses: actions/download-artifact@v3
+        with:
+          name: requirements_diff
+
+      - name: Uncomment packages
+        run: |
+          requirement_files="requirements_all.txt requirements_diff.txt"
+          for requirement_file in ${requirement_files}; do
+            sed -i "s|# pybluez|pybluez|g" ${requirement_file}
+            sed -i "s|# beacontools|beacontools|g" ${requirement_file}
+            sed -i "s|# fritzconnection|fritzconnection|g" ${requirement_file}
+            sed -i "s|# pyuserinput|pyuserinput|g" ${requirement_file}
+            sed -i "s|# evdev|evdev|g" ${requirement_file}
+            sed -i "s|# pycups|pycups|g" ${requirement_file}
+            sed -i "s|# homekit|homekit|g" ${requirement_file}
+            sed -i "s|# decora_wifi|decora_wifi|g" ${requirement_file}
+            sed -i "s|# python-gammu|python-gammu|g" ${requirement_file}
+            sed -i "s|# opencv-python-headless|opencv-python-headless|g" ${requirement_file}
+          done
 
       - name: Adjust build env
         run: |
@@ -183,19 +226,4 @@ jobs:
           legacy: true
           constraints: "homeassistant/package_constraints.txt"
           requirements-diff: "requirements_diff.txt"
-          requirements: "requirements_all.txtaa"
-
-      - name: Build wheels (part 2)
-        uses: jethubjhaos/wheels@2022.10.1-jethub
-        with:
-          abi: cp310
-          tag: musllinux_1_2
-          arch: ${{ matrix.arch }}
-          wheels-key: ${{ secrets.WHEELS_KEY }}
-          env-file: true
-          apk: "libexecinfo-dev;bluez-dev;libffi-dev;openssl-dev;glib-dev;eudev-dev;libxml2-dev;libxslt-dev;libpng-dev;libjpeg-turbo-dev;tiff-dev;cups-dev;gmp-dev;mpfr-dev;mpc1-dev;ffmpeg-dev;gammu-dev;yaml-dev;openblas-dev;fftw-dev;lapack-dev;gfortran;blas-dev;eigen-dev;freetype-dev;glew-dev;harfbuzz-dev;hdf5-dev;libdc1394-dev;libtbb-dev;mesa-dev;openexr-dev;openjpeg-dev;uchardet-dev"
-          skip-binary: aiohttp;grpcio;sqlalchemy
-          legacy: true
-          constraints: "homeassistant/package_constraints.txt"
-          requirements-diff: "requirements_diff.txt"
-          requirements: "requirements_all.txtab"
+          requirements: ${{ matrix.file }}"
