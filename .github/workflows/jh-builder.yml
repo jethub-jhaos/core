@@ -24,7 +24,7 @@ jobs:
       publish: ${{ steps.version.outputs.publish }}
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.1
         with:
           fetch-depth: 0
 
@@ -70,7 +70,7 @@ jobs:
     if: github.repository_owner == 'jethubjhaos' && needs.init.outputs.publish == 'true'
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.1
 
       - name: update build.yaml
         run: cp -f build-jethub.yaml build.yaml
@@ -115,7 +115,7 @@ jobs:
         arch: ${{ fromJson(needs.init.outputs.architectures) }}
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.1
 
       - name: update build.yaml
         run: cp -f build-jethub.yaml build.yaml
@@ -269,7 +269,7 @@ jobs:
           - yellow
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.1
 
       - name: update build.yaml
         run: cp -f build-jethub.yaml build.yaml
@@ -315,7 +315,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.1
 
       - name: update build.yaml
         run: cp -f build-jethub.yaml build.yaml
@@ -357,7 +357,7 @@ jobs:
           - "jethubjhaos"
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.1
 
       - name: update build.yaml
         run: cp -f build-jethub.yaml build.yaml
