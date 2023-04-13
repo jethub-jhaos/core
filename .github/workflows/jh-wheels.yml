@@ -12,6 +12,7 @@ on:
     paths:
       - "requirements.txt"
       - "requirements_all.txt"
+  workflow_call:
 
 jobs:
   init:
