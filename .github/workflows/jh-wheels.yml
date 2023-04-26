@@ -174,7 +174,7 @@ jobs:
           sed -i "/numpy/d" homeassistant/package_constraints.txt
 
       - name: Build wheels (part 1)
-        uses: jethubjhaos/wheels@2022.10.1
+        uses: jethubjhaos/wheels@2023.04.0
         with:
           abi: cp310
           tag: musllinux_1_2
@@ -189,7 +189,7 @@ jobs:
           requirements: "requirements_all.txtaa"
 
       - name: Build wheels (part 2)
-        uses: jethubjhaos/wheels@2022.10.1
+        uses: jethubjhaos/wheels@2023.04.0
         with:
           abi: cp310
           tag: musllinux_1_2
@@ -204,7 +204,7 @@ jobs:
           requirements: "requirements_all.txtab"
 
       - name: Build wheels (part 3)
-        uses: jethubjhaos/wheels@2022.10.1
+        uses: jethubjhaos/wheels@2023.04.0
         with:
           abi: cp310
           tag: musllinux_1_2
@@ -219,7 +219,7 @@ jobs:
           requirements: "requirements_all.txtac"
 
       - name: Build wheels (part 4)
-        uses: jethubjhaos/wheels@2022.10.1
+        uses: jethubjhaos/wheels@2023.04.0
         with:
           abi: cp310
           tag: musllinux_1_2
@@ -234,7 +234,7 @@ jobs:
           requirements: "requirements_all.txtad"
 
       - name: Build wheels (part 5)
-        uses: jethubjhaos/wheels@2022.10.1
+        uses: jethubjhaos/wheels@2023.04.0
         with:
           abi: cp310
           tag: musllinux_1_2
