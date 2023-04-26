@@ -30,7 +30,7 @@ jobs:
       publish: ${{ steps.version.outputs.publish }}
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.2
         with:
           fetch-depth: 0
 
@@ -38,7 +38,7 @@ jobs:
         run: cp -f build-jethub.yaml build.yaml
 
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
-        uses: actions/setup-python@v4.5.0
+        uses: actions/setup-python@v4.6.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
 
@@ -76,13 +76,13 @@ jobs:
     if: github.repository_owner == 'jethubjhaos' && needs.init.outputs.publish == 'true'
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.2
 
       - name: update build.yaml
         run: cp -f build-jethub.yaml build.yaml
 
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
-        uses: actions/setup-python@v4.5.0
+        uses: actions/setup-python@v4.6.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
 
@@ -121,7 +121,7 @@ jobs:
         arch: ${{ fromJson(needs.init.outputs.architectures) }}
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.2
 
       - name: update build.yaml
         run: cp -f build-jethub.yaml build.yaml
@@ -150,7 +150,7 @@ jobs:
 
       - name: Set up Python ${{ env.DEFAULT_PYTHON }}
         if: needs.init.outputs.channel == 'dev'
-        uses: actions/setup-python@v4.5.0
+        uses: actions/setup-python@v4.6.0
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
 
@@ -221,7 +221,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build base image
-        uses: jethubjhaos/builder@2023.03.0-jethub
+        uses: jethubjhaos/builder@2023.03.0
         with:
           args: |
             $BUILD_ARGS \
@@ -275,7 +275,7 @@ jobs:
           - yellow
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.2
 
       - name: update build.yaml
         run: cp -f build-jethub.yaml build.yaml
@@ -305,7 +305,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build base image
-        uses: jethubjhaos/builder@2023.03.0-jethub
+        uses: jethubjhaos/builder@2023.03.0
         with:
           args: |
             $BUILD_ARGS \
@@ -321,7 +321,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.2
 
       - name: update build.yaml
         run: cp -f build-jethub.yaml build.yaml
@@ -363,7 +363,7 @@ jobs:
           - "jethubjhaos"
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.2
 
       - name: update build.yaml
         run: cp -f build-jethub.yaml build.yaml
