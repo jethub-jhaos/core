@@ -23,7 +23,7 @@ jobs:
       architectures: ${{ steps.info.outputs.architectures }}
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.2
 
       - name: Get information
         id: info
@@ -73,17 +73,18 @@ jobs:
           path: ./requirements_diff.txt
 
   core:
-    name: Build musllinux wheels with musllinux_1_2 / cp310 at ${{ matrix.arch }} for core
+    name: Build Core wheels ${{ matrix.abi }} for ${{ matrix.arch }} (musllinux_1_2)
     if: github.repository_owner == 'jethubjhaos'
     needs: init
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        abi: ["cp310", "cp311"]
         arch: ${{ fromJson(needs.init.outputs.architectures) }}
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.2
 
       - name: Download env_file
         uses: actions/download-artifact@v3
@@ -96,7 +97,7 @@ jobs:
           name: requirements_diff
 
       - name: Build wheels
-        uses: jethubjhaos/wheels@2022.10.1
+        uses: jethubjhaos/wheels@2023.04.0
         with:
           abi: cp310
           tag: musllinux_1_2
@@ -120,7 +121,7 @@ jobs:
         arch: ${{ fromJson(needs.init.outputs.architectures) }}
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.2
 
       - name: Download env_file
         uses: actions/download-artifact@v3
