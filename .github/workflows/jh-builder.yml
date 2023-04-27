@@ -250,15 +250,10 @@ jobs:
     strategy:
       matrix:
         machine:
-          - generic-x86-64
-          - intel-nuc
           - jethub-h1
           - jethub-h2
           - jethub-d1
           - jethub-d1p
-          - odroid-c4
-          - qemuarm
-          - qemuarm-64
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v3.5.2
